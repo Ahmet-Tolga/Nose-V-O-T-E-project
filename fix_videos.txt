@@ -1,0 +1,1 @@
+ffmpeg -i ./data/132_0101_0105_1L_0128_0131_0_0_0.mov -c:v libx264 -crf 23 -preset fast -c:a aac -b:a 128k -movflags +faststart ./output/132_0101_0105_1L_0128_0131_0_0_0.mov
