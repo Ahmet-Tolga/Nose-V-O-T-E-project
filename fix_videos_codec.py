@@ -3,7 +3,7 @@ import subprocess
 
 input_folder = './newFolder'
 output_folder = './fix_output'
-arr = [i for i in range(251,278)]
+arr = [i for i in range(278,326)]
 
 os.makedirs(output_folder, exist_ok=True)
 
