@@ -1,0 +1,6 @@
+IMG_SIZE = 150
+NUM_CLASSES = 3
+
+EPOCHS = 15
+BATCH_SIZE = 8
+CATEGORIES = ["v", "ote", "not"]
