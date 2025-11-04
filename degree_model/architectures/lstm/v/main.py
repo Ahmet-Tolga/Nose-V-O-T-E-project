@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sklearn.model_selection import train_test_split
 from common.evaluation import adjusted_precision_by_prevalence
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report,accuracy_score
 from tensorflow.keras.utils import to_categorical
 
 from common.constants import *
@@ -31,7 +31,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 model = create_model(frame_count=FRAME_COUNT, img_size=IMG_SIZE,num_classes=NUM_CLASSES)
 
 print("LSTM model is training!")
-model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,validation_data=(X_test,y_test))
+model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,validation_split=0.2)
 
 print("Model training completed!")
 
@@ -41,6 +41,8 @@ y_pred = model.predict(X_test)
 
 y_test_labels = np.argmax(y_test, axis=1)
 y_pred_labels = np.argmax(y_pred, axis=1)
+
+print(f"Test Accuracy is {accuracy_score(y_pred_labels,y_test_labels)}")
 
 print(y_test_labels)
 print(y_pred_labels)

@@ -19,7 +19,6 @@ log_data_quantities(y)
 
 kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-
 fold_no = 1
 
 test_accuracies=[]

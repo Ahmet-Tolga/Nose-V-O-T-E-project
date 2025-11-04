@@ -7,13 +7,16 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras import backend as K
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(BASE_DIR)
+
 from common.constants import *
 from common.model import create_model
 from data_loader import load_videos
 from common.logger import log_data_quantities
 from common.evaluation import adjusted_precision_by_prevalence
 
-FOLDER_PATH = "../../../../img/v"
+FOLDER_PATH = "../../../../../img/ote"
 X, y = load_videos(FOLDER_PATH)
 log_data_quantities(y)
 

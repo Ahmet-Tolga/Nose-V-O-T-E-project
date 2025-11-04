@@ -24,6 +24,7 @@ def load_data(FOLDER_PATH,IMG_SIZE=IMG_SIZE):
             continue
 
         frame_files = sorted(os.listdir(folder_full_path), key=lambda x: int(x.split('_')[1].split('.')[0]))
+
         frames = []
 
         for file_name in frame_files[:FRAME_COUNT]:

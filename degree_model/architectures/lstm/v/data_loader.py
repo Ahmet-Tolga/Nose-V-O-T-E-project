@@ -32,7 +32,7 @@ def load_videos(folder, frame_count=FRAME_COUNT, img_size=IMG_SIZE):
                     print(f"[WARN] frame can not be read!: {img_path}")
 
             if len(frames) == frame_count:
-                videos.append(frames) 
+                videos.append(frames)
                 labels.append(label)
             else:
                 print(f"[SKIP] {video_folder} -> not enough frame ({len(frames)}/{frame_count})")

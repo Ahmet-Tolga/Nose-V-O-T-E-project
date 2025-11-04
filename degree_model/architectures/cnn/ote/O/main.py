@@ -7,7 +7,7 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.append(BASE_DIR)
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report,accuracy_score
 from common.evaluation import adjusted_precision_by_prevalence
 from tensorflow.keras.utils import to_categorical
 
@@ -29,7 +29,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 model = create_model(frame_count=FRAME_COUNT, img_size=IMG_SIZE,num_classes=NUM_CLASSES)
 
 print("CNN model is training!")
-model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,validation_data=(X_test,y_test))
+model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,validation_split=0.2)
 
 print("Model training completed!")
 
@@ -42,6 +42,8 @@ y_pred_labels = np.argmax(y_pred, axis=1)
 
 print(y_test_labels)
 print(y_pred_labels)
+
+print(f"Test Accuracy is {accuracy_score(y_pred_labels,y_test_labels)}")
 
 custom_prev = {0:103, 1:124, 2:33}
 

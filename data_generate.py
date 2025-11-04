@@ -17,6 +17,10 @@ def parse_video_name(file_name, is_v):
 
     if is_v:
         try:
+
+            if(len(variables[1])>4):
+                return None
+            
             start_time = variables[1]
             end_time = variables[2]
             label = variables[3][0]
@@ -37,11 +41,11 @@ def parse_video_name(file_name, is_v):
     else:
         try:
 
-            if(len(variables)<5):
-                return
-            start_time = variables[4]
-            end_time = variables[5]
-            label = str(variables[6][0]) + str(variables[7][0]) + variables[8][0]
+            if(len(variables[-1])>4):
+                return None
+            start_time = variables[-5]
+            end_time = variables[-4]
+            label = str(variables[-3][0]) + str(variables[-2][0]) + variables[-1][0]
 
             start_minute = int(start_time[:2])
             start_second = int(start_time[2:])
@@ -76,6 +80,7 @@ def get_frame(video_path,is_v):
     file_name = os.path.basename(video_path).split(".")[0]
 
     parsed = parse_video_name(file_name, is_v)
+
     if not parsed:
         return None
 
@@ -184,45 +189,80 @@ def enhance_frame(frame,crop_x=100, crop_y = 30,crop_w=400, crop_h = 350 ):
 
     return sharpened
 
-def get_frame_for_v(video_path, output_dir):
-    cap,frame_indices,video_name,total_frames,label=get_frame(video_path,True)
-
-    video_name=f"{video_name}_{label}"
-
-    output_dir = f"{output_dir}/{video_name}"
-
-    if os.path.exists(output_dir):
-        print(f"Skipped: {output_dir} already exists.")
-        return
+def augment_data(frame_indeces,augmented_index):
+    augmentation_array=[]
     
-    os.makedirs(output_dir, exist_ok=True)
+    increment_arr=[0,4,12,8,-16,3,18,9,-8,16,-9,14,-14]
 
-    frame_count = 0
+    for i in range(augmented_index):
+        augmentation_array.append(frame_indeces+increment_arr[i])
 
-    print(frame_indices)
-    for frame_num in frame_indices:
+    return augmentation_array
 
-        if frame_num >= total_frames:
-            print(f"Warning: For {video_name} ({frame_num}), Total frame count ({total_frames}) is too high!.")
-            continue
 
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
-        cap.grab()
-        ret, frame = cap.read()
+def get_frame_for_v(video_path, output_dir):
+    parsed=get_frame(video_path,True)
 
-        if not ret:
-            print(f"Error: For {video_name} {frame_num} frame can not be read!.")
-            continue
+    if parsed is None:
+        print(f"Skipped: {video_path} is not a valid velum video.")
+        return None
+    
+    cap,frame_indices,video_name,total_frames,label= parsed
 
-        frame_filename = f"{label}_{frame_num}.jpg"
-        frame_path = os.path.join(output_dir, frame_filename)
+    augmented_index=1
 
-        enhanced_frame=enhance_frame(frame)
-        cv2.imwrite(frame_path, enhanced_frame)
+    if(int(label)==0):
+        augmented_index=6
+
+    elif(int(label)==1):
+        augmented_index=3
+
+    elif(int(label)==2):
+        augmented_index=3
+
+    print("\n")
+    print(f"Augmentation index={augmented_index}")
+
+    augmented_data=augment_data(frame_indices,augmented_index)
+
+    for i in range(len(augmented_data)):
+        name=f"{video_name}_{i}_{label}"
+
+        output_dir_new = f"{output_dir}/{name}"
+
+        if os.path.exists(output_dir_new):
+            print(f"Skipped: {output_dir_new} already exists.")
+            return
         
-        frame_count += 1
+        os.makedirs(output_dir_new, exist_ok=True)
 
-    print(f"For {video_name} ,{frame_count} Image is saved!.")
+        frame_count = 0
+
+        print(augmented_data[i])
+        for frame_num in augmented_data[i]:
+
+            if frame_num >= total_frames:
+                print(f"Warning: For {name} ({frame_num}), Total frame count ({total_frames}) is too high!.")
+                continue
+
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+            cap.grab()
+            ret, frame = cap.read()
+
+            if not ret:
+                print(f"Error: For {name} {frame_num} frame can not be read!.")
+                continue
+
+            frame_filename = f"{label}_{frame_num}.jpg"
+            frame_path = os.path.join(output_dir_new, frame_filename)
+
+            enhanced_frame=enhance_frame(frame)
+            cv2.imwrite(frame_path, enhanced_frame)
+            
+            frame_count += 1
+
+        print(f"For {name} ,{frame_count} Image is saved!.")
+        
     cap.release()
     cv2.destroyAllWindows()
 
@@ -236,42 +276,60 @@ def get_frame_for_ote(video_path, output_dir):
 
     cap, frame_indices, video_name, total_frames, label = result
 
-    video_name=f"{video_name}_{label}"
+    augmented_index=1
 
-    output_dir = f"{output_dir}/{video_name}"
+    if(int(label[0])==0):
+        augmented_index=4
 
-    if os.path.exists(output_dir):
-        print(f"Skipped: {output_dir} already exists.")
-        return
-    
-    os.makedirs(output_dir, exist_ok=True)
+    elif(int(label[0])==1):
+        augmented_index=3
 
-    frame_count = 0
+    elif(int(label[0])==2):
+        augmented_index=12
 
-    print(frame_indices)
-    for frame_num in frame_indices:
+    print("\n")
+    print(f"Augmentation index={augmented_index}")
 
-        if frame_num >= total_frames:
-            print(f"Warning: For {video_name} ({frame_num}), Total frame count ({total_frames}) is too high!.")
-            continue
+    augmented_data=augment_data(frame_indices,augmented_index)
 
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
-        cap.grab()
-        ret, frame = cap.read()
+    for i in range(len(augmented_data)):
+        name=f"{video_name}_{i}_{label}"
 
-        if not ret:
-            print(f"Error: For {video_name} {frame_num} frame can not be read!.")
-            continue
+        output_dir_new = f"{output_dir}/{name}"
 
-        frame_filename = f"{label}_{frame_num}.jpg"
-        frame_path = os.path.join(output_dir, frame_filename)
-
-        enhanced_frame=enhance_frame(frame)
-        cv2.imwrite(frame_path, enhanced_frame)
+        if os.path.exists(output_dir_new):
+            print(f"Skipped: {output_dir_new} already exists.")
+            return
         
-        frame_count += 1
+        os.makedirs(output_dir_new, exist_ok=True)
 
-    print(f"For {video_name} ,{frame_count} Image is saved!.")
+        frame_count = 0
+
+        print(augmented_data[i])
+        for frame_num in augmented_data[i]:
+
+            if frame_num >= total_frames:
+                print(f"Warning: For {name} ({frame_num}), Total frame count ({total_frames}) is too high!.")
+                continue
+
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+            cap.grab()
+            ret, frame = cap.read()
+
+            if not ret:
+                print(f"Error: For {name} {frame_num} frame can not be read!.")
+                continue
+
+            frame_filename = f"{label}_{frame_num}.jpg"
+            frame_path = os.path.join(output_dir_new, frame_filename)
+
+            enhanced_frame=enhance_frame(frame)
+            cv2.imwrite(frame_path, enhanced_frame)
+            
+            frame_count += 1
+
+        print(f"For {name} ,{frame_count} Image is saved!.")
+
     cap.release()
     cv2.destroyAllWindows()
 
@@ -325,16 +383,18 @@ def get_frame_for_not_region(video_path, output_dir,index):
     cap.release()
     cv2.destroyAllWindows()
 
-
+print("--------------Data creation from v-----------------")
 for video in os.listdir("./data"):
     video_path=os.path.join("./data",video)
     get_frame_for_v(video_path,v_folder)
 
+print("--------------Data creation from ote-----------------")
 for video in os.listdir("./data"):
     video_path=os.path.join("./data",video)
 
     get_frame_for_ote(video_path,ote_folder)
 
+print("--------------Data creation from not-----------------")
 index=0
 
 for video in os.listdir("./data"):
