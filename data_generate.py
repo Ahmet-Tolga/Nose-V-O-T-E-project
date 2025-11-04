@@ -17,6 +17,10 @@ def parse_video_name(file_name, is_v):
 
     if is_v:
         try:
+
+            if(len(variables[1])>4):
+                return None
+            
             start_time = variables[1]
             end_time = variables[2]
             label = variables[3][0]
@@ -37,11 +41,11 @@ def parse_video_name(file_name, is_v):
     else:
         try:
 
-            if(len(variables)<5):
-                return
-            start_time = variables[4]
-            end_time = variables[5]
-            label = str(variables[6][0]) + str(variables[7][0]) + variables[8][0]
+            if(len(variables[-1])>4):
+                return None
+            start_time = variables[-5]
+            end_time = variables[-4]
+            label = str(variables[-3][0]) + str(variables[-2][0]) + variables[-1][0]
 
             start_minute = int(start_time[:2])
             start_second = int(start_time[2:])
